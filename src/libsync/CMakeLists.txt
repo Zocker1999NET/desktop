@@ -114,8 +114,8 @@ set(libsync_SRCS
     clientsideencryption.cpp
     clientsideencryptionjobs.h
     clientsideencryptionjobs.cpp
-    clientsidetokenselector.h
-    clientsidetokenselector.cpp
+    clientsideencryptiontokenselector.h
+    clientsideencryptiontokenselector.cpp
     datetimeprovider.h
     datetimeprovider.cpp
     ocsuserstatusconnector.h
