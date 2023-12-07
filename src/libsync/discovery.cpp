@@ -1636,6 +1636,12 @@ void ProcessDirectoryJob::processFileFinalize(
         }
     }
 
+    if (item->_direction == SyncFileItem::Up && item->isEncrypted() && !_discoveryData->_account->e2e()->canEncrypt()) {
+        item->_instruction = CSYNC_INSTRUCTION_ERROR;
+        item->_errorString = tr("Cannot modify encrypted item because the selected certificate is not valid.");
+        item->_status = SyncFileItem::Status::NormalError;
+    }
+
     if (item->isDirectory() && item->_instruction == CSYNC_INSTRUCTION_SYNC)
         item->_instruction = CSYNC_INSTRUCTION_UPDATE_METADATA;
     bool removed = item->_instruction == CSYNC_INSTRUCTION_REMOVE;
