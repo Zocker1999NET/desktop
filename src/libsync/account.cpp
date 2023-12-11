@@ -1057,7 +1057,7 @@ bool Account::enforceUseHardwareTokenEncryption() const
 
 QString Account::encryptionHardwareTokenDriverPath() const
 {
-    return {};
+    return ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH;
 }
 
 QByteArray Account::encryptionCertificateFingerprint() const
