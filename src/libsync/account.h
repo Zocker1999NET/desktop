@@ -390,6 +390,7 @@ signals:
     void lockFileError(const QString&);
 
     void encryptionCertificateFingerprintChanged();
+    void userCertificateNeedsMigrationChanged();
 
 protected Q_SLOTS:
     void slotCredentialsFetched();

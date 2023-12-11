@@ -80,6 +80,9 @@ Account::Account(QObject *parent)
 
     _pushNotificationsReconnectTimer.setInterval(pushNotificationsReconnectInterval);
     connect(&_pushNotificationsReconnectTimer, &QTimer::timeout, this, &Account::trySetupPushNotifications);
+
+    connect(&_e2e, &ClientSideEncryption::userCertificateNeedsMigrationChanged,
+            this, &Account::userCertificateNeedsMigrationChanged);
 }
 
 AccountPtr Account::create()

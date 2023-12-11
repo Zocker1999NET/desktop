@@ -43,6 +43,8 @@ public:
 
     [[nodiscard]] QByteArray sha256Fingerprint() const;
 
+    void clear();
+
 public slots:
     QFuture<void> searchForCertificates(const OCC::AccountPtr &account);
 

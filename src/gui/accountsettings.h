@@ -112,6 +112,8 @@ protected slots:
                                   const QVector<int> &roles);
     void slotPossiblyUnblacklistE2EeFoldersAndRestartSync();
 
+    void slotE2eEncryptionCertificateNeedMigration();
+
 private slots:
     void updateBlackListAndScheduleFolderSync(const QStringList &blackList, OCC::Folder *folder, const QStringList &foldersToRemoveFromBlacklist) const;
     void folderTerminateSyncAndUpdateBlackList(const QStringList &blackList, OCC::Folder *folder, const QStringList &foldersToRemoveFromBlacklist);
@@ -119,6 +121,7 @@ private slots:
 private slots:
     void displayMnemonic(const QString &mnemonic);
     void disableEncryptionForAccount(const OCC::AccountPtr &account) const;
+    void migrateCertificateForAccount(const OCC::AccountPtr &account);
     void showConnectionLabel(const QString &message, QStringList errors = QStringList());
     void openIgnoredFilesDialog(const QString & absFolderPath);
     void customizeStyle();

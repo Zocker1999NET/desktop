@@ -69,6 +69,7 @@ constexpr auto e2eUiActionIdKey = "id";
 constexpr auto e2EeUiActionEnableEncryptionId = "enable_encryption";
 constexpr auto e2EeUiActionDisableEncryptionId = "disable_encryption";
 constexpr auto e2EeUiActionDisplayMnemonicId = "display_mnemonic";
+constexpr auto e2EeUiActionMigrateCertificateId = "migrate_certificate";
 }
 
 namespace OCC {
@@ -273,6 +274,10 @@ void AccountSettings::slotE2eEncryptionMnemonicReady()
     connect(actionDisableEncryption, &QAction::triggered, this, [this] {
         disableEncryptionForAccount(_accountState->account());
     });
+
+    if (_accountState->account()->e2e()->userCertificateNeedsMigration()) {
+        slotE2eEncryptionCertificateNeedMigration();
+    }
 
     if (!_accountState->account()->e2e()->getMnemonic().isEmpty()) {
         const auto actionDisplayMnemonic = addActionToEncryptionMessage(tr("Display mnemonic"), e2EeUiActionDisplayMnemonicId);
@@ -1098,6 +1103,16 @@ void AccountSettings::disableEncryptionForAccount(const AccountPtr &account) con
     }
 }
 
+void AccountSettings::migrateCertificateForAccount(const AccountPtr &account)
+{
+    for (const auto action : _ui->encryptionMessage->actions()) {
+        _ui->encryptionMessage->removeAction(action);
+    }
+
+    account->e2e()->migrateCertificate(this, account);
+    slotE2eEncryptionGenerateKeys();
+}
+
 void AccountSettings::showConnectionLabel(const QString &message, QStringList errors)
 {
     const auto errStyle = QLatin1String("color:#ffffff; background-color:#bb4d4d;padding:5px;"
@@ -1473,6 +1488,14 @@ void AccountSettings::slotPossiblyUnblacklistE2EeFoldersAndRestartSync()
             updateBlackListAndScheduleFolderSync(blackList, folder, foldersToRemoveFromBlacklist);
         }
     }
+}
+
+void AccountSettings::slotE2eEncryptionCertificateNeedMigration()
+{
+    const auto actionMigrateCertificate = addActionToEncryptionMessage(tr("Migrate certificate to a new one"), e2EeUiActionMigrateCertificateId);
+    connect(actionMigrateCertificate, &QAction::triggered, this, [this] {
+        migrateCertificateForAccount(_accountState->account());
+    });
 }
 
 void AccountSettings::updateBlackListAndScheduleFolderSync(const QStringList &blackList, OCC::Folder *folder, const QStringList &foldersToRemoveFromBlacklist) const

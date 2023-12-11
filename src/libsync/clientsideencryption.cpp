@@ -133,6 +133,34 @@ unsigned char* unsignedData(QByteArray& array)
        // data structures
        //
 
+class Pkcs11Context {
+public:
+    Pkcs11Context()
+        : _pkcsS11Ctx(PKCS11_CTX_new())
+    {
+    }
+
+    ~Pkcs11Context()
+    {
+        PKCS11_CTX_free(_pkcsS11Ctx);
+    }
+
+    operator const PKCS11_CTX*() const
+    {
+        return _pkcsS11Ctx;
+    }
+
+    operator PKCS11_CTX*()
+    {
+        return _pkcsS11Ctx;
+    }
+
+private:
+    Q_DISABLE_COPY(Pkcs11Context)
+
+    PKCS11_CTX* _pkcsS11Ctx = nullptr;
+};
+
 class CipherCtx {
 public:
     CipherCtx()
@@ -1297,7 +1325,7 @@ void ClientSideEncryption::initializeHardwareTokenEncryption(QWidget *settingsDi
             continue;
         }
 
-        if (oneCertificateInformation.sha256Fingerprint() != _usbTokenInformation.sha256Fingerprint()) {
+        if (!_usbTokenInformation.sha256Fingerprint().isEmpty() && oneCertificateInformation.sha256Fingerprint() != _usbTokenInformation.sha256Fingerprint()) {
             qCInfo(lcCse()) << "skipping certificate from" << "with fingerprint" << oneCertificateInformation.sha256Fingerprint() << "different from" << _usbTokenInformation.sha256Fingerprint();
             continue;
         }
@@ -1314,6 +1342,10 @@ void ClientSideEncryption::initializeHardwareTokenEncryption(QWidget *settingsDi
 
             failedToInitialize(account);
             return;
+        }
+
+        if (!canEncrypt()) {
+            Q_EMIT userCertificateNeedsMigrationChanged();
         }
 
         saveCertificateIdentification(account);
@@ -1688,6 +1720,10 @@ void ClientSideEncryption::forgetSensitiveData(const AccountPtr &account)
         return job;
     };
 
+    if (!account->credentials()) {
+        return;
+    }
+
     const auto user = account->credentials()->user();
     const auto deletePrivateKeyJob = createDeleteJob(user + e2e_private);
     const auto deleteCertJob = createDeleteJob(user + e2e_cert);
@@ -1705,6 +1741,11 @@ void ClientSideEncryption::forgetSensitiveData(const AccountPtr &account)
     Q_EMIT canDecryptChanged();
     Q_EMIT canEncryptChanged();
     Q_EMIT userCertificateNeedsMigrationChanged();
+}
+
+void ClientSideEncryption::migrateCertificate(QWidget *settingsDialog, const AccountPtr &account)
+{
+    _usbTokenInformation.clear();
 }
 
 void ClientSideEncryption::handlePrivateKeyDeleted(const QKeychain::Job* const incoming)
@@ -3025,7 +3066,7 @@ CertificateInformation::CertificateInformation(PKCS11_KEY *publicKey,
 
 bool CertificateInformation::operator==(const CertificateInformation &other) const
 {
-    return _publicKey == other._publicKey && _privateKey == other._privateKey && _certificate == other._certificate;
+    return _certificate.digest(QCryptographicHash::Sha256) == other._certificate.digest(QCryptographicHash::Sha256);
 }
 
 void CertificateInformation::clear()

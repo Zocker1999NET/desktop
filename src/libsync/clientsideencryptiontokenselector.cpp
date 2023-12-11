@@ -122,6 +122,12 @@ QByteArray ClientSideEncryptionTokenSelector::sha256Fingerprint() const
     return _sha256Fingerprint;
 }
 
+void ClientSideEncryptionTokenSelector::clear()
+{
+    _discoveredCertificates.clear();
+    _sha256Fingerprint.clear();
+}
+
 QFuture<void> ClientSideEncryptionTokenSelector::searchForCertificates(const AccountPtr &account)
 {
     return QtConcurrent::run([this, account] () -> void {
