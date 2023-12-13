@@ -1109,7 +1109,7 @@ void AccountSettings::migrateCertificateForAccount(const AccountPtr &account)
         _ui->encryptionMessage->removeAction(action);
     }
 
-    account->e2e()->migrateCertificate(this, account);
+    account->e2e()->migrateCertificate();
     slotE2eEncryptionGenerateKeys();
 }
 

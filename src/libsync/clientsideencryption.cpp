@@ -1743,7 +1743,7 @@ void ClientSideEncryption::forgetSensitiveData(const AccountPtr &account)
     Q_EMIT userCertificateNeedsMigrationChanged();
 }
 
-void ClientSideEncryption::migrateCertificate(QWidget *settingsDialog, const AccountPtr &account)
+void ClientSideEncryption::migrateCertificate()
 {
     _usbTokenInformation.clear();
 }

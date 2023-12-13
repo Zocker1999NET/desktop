@@ -1052,12 +1052,20 @@ bool Account::askUserForMnemonic() const
 
 bool Account::enforceUseHardwareTokenEncryption() const
 {
+#if defined CLIENTSIDEENCRYPTION_ENFORCE_USB_TOKEN
     return CLIENTSIDEENCRYPTION_ENFORCE_USB_TOKEN;
+#else
+    return false;
+#endif
 }
 
 QString Account::encryptionHardwareTokenDriverPath() const
 {
+#if defined ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH
     return ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH;
+#else
+    return {};
+#endif
 }
 
 QByteArray Account::encryptionCertificateFingerprint() const

@@ -54,8 +54,6 @@ set( APPLICATION_WIZARD_HEADER_BACKGROUND_COLOR ${NEXTCLOUD_BACKGROUND_COLOR} CA
 set( APPLICATION_WIZARD_HEADER_TITLE_COLOR "#ffffff" CACHE STRING "Hex color of the text in the wizard header")
 option( APPLICATION_WIZARD_USE_CUSTOM_LOGO "Use the logo from ':/client/theme/colored/wizard_logo.(png|svg)' else the default application icon is used" ON )
 
-set(ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH "{}")
-
 #
 ## Windows Shell Extensions & MSI - IMPORTANT: Generate new GUIDs for custom builds with "guidgen" or "uuidgen"
 #
@@ -81,5 +79,3 @@ endif()
 if (APPLE)
     option( BUILD_FILE_PROVIDER_MODULE "Build the macOS virtual files File Provider module" OFF )
 endif()
-
-set (CLIENTSIDEENCRYPTION_ENFORCE_USB_TOKEN true)

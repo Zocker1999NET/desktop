@@ -252,8 +252,7 @@ public slots:
                                            const OCC::AccountPtr &account);
     void forgetSensitiveData(const OCC::AccountPtr &account);
 
-    void migrateCertificate(QWidget *settingsDialog,
-                            const OCC::AccountPtr &account);
+    void migrateCertificate();
 
 private slots:
     void generateKeyPair(const OCC::AccountPtr &account);
