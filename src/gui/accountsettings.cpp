@@ -309,6 +309,7 @@ void AccountSettings::slotE2eEncryptionInitializationFinished(bool isNewMnemonic
         if (isNewMnemonicGenerated) {
             displayMnemonic(_accountState->account()->e2e()->getMnemonic());
         }
+        Q_EMIT _accountState->account()->wantsFoldersSynced();
     }
     _accountState->account()->setAskUserForMnemonic(false);
 }

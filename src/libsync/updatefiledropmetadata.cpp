@@ -125,7 +125,7 @@ void UpdateFileDropMetadataJob::slotFolderEncryptedMetadataReceived(const QJsonD
     _metadata.reset(new FolderMetadata(propagator()->account(),
                                        FolderMetadata::RequiredMetadataVersion::Version1,
                                        json.toJson(QJsonDocument::Compact), statusCode));
-    if (!_metadata->moveFromFileDropToFiles() && !_metadata->encryptedMetadataNeedUpdate()) {
+    if (!_metadata->moveFromFileDropToFiles() && !_metadata->encryptedMetadataNeedUpdate(propagator()->account()->encryptionCertificateFingerprint())) {
         unlockFolder();
         return;
     }

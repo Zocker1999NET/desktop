@@ -2648,9 +2648,9 @@ bool FolderMetadata::isFileDropPresent() const
     return _fileDrop.size() > 0;
 }
 
-bool FolderMetadata::encryptedMetadataNeedUpdate() const
+bool FolderMetadata::encryptedMetadataNeedUpdate(const QByteArray &expectedCertificateFingerprint) const
 {
-    return _encryptedMetadataNeedUpdate;
+    return _metadataCertificateSha256Fingerprint != expectedCertificateFingerprint || _encryptedMetadataNeedUpdate;
 }
 
 bool FolderMetadata::moveFromFileDropToFiles()

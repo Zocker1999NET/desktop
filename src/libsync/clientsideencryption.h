@@ -381,7 +381,7 @@ public:
 
     [[nodiscard]] bool isFileDropPresent() const;
 
-    [[nodiscard]] bool encryptedMetadataNeedUpdate() const;
+    [[nodiscard]] bool encryptedMetadataNeedUpdate(const QByteArray &expectedCertificateFingerprint) const;
 
     [[nodiscard]] bool moveFromFileDropToFiles();
 

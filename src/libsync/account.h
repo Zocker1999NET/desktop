@@ -365,6 +365,8 @@ signals:
     // e.g. when the approved SSL certificates changed
     void wantsAccountSaved(OCC::Account *acc);
 
+    void wantsFoldersSynced();
+
     void serverVersionChanged(OCC::Account *account, const QString &newVersion, const QString &oldVersion);
 
     void accountChangedAvatar();
