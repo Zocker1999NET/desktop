@@ -309,7 +309,7 @@ void PropagateRemoteMove::finalize()
     }
 
     if (_item->isDirectory()) {
-        if (!propagator()->_journal->updateParentForAllChildren(origin.toUtf8(), _item->_renameTarget.toUtf8())) {
+        if (!propagator()->_journal->relocateFolderToNewPathRecursively(origin.toUtf8(), _item->_renameTarget.toUtf8())) {
             done(SyncFileItem::FatalError, tr("Failed to move folder: %1").arg(_item->_file), ErrorCategory::GenericError);
             return;
         }
