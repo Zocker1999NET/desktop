@@ -151,7 +151,7 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
 
     auto rc = PKCS11_CTX_load(ctx, account->encryptionHardwareTokenDriverPath().toLatin1().constData());
     if (rc) {
-        qCWarning(lcCseSelector()) << "loading pkcs11 engine failed:" << ERR_reason_error_string(ERR_get_error());
+        qCWarning(lcCseSelector()) << "loading pkcs11 engine failed:" << ERR_reason_error_string(ERR_get_error()) << account->encryptionHardwareTokenDriverPath();
 
         Q_EMIT failedToInitialize(account);
         return;
