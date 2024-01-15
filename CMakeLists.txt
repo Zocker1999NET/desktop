@@ -215,7 +215,7 @@ if(BUILD_CLIENT)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(OPENSC-LIBP11 libp11 IMPORTED_TARGET)
 
-    option(ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH "Path to the driver for end-to-end encryption token" "")
+    set(ENCRYPTION_HARDWARE_TOKEN_DRIVER_PATH "" CACHE PATH "Path to the driver for end-to-end encryption token")
     option(CLIENTSIDEENCRYPTION_ENFORCE_USB_TOKEN "Enforce use of an hardware token for end-to-end encryption" false)
 
     find_package(ZLIB REQUIRED)
