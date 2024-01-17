@@ -46,6 +46,8 @@
 #include <QRandomGenerator>
 #include <QCryptographicHash>
 #include <QFutureWatcher>
+#include <QSslCertificate>
+#include <QSslCertificateExtension>
 
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
@@ -3082,7 +3084,25 @@ void CertificateInformation::clear()
 
 QList<QSslError> CertificateInformation::verify() const
 {
-    return QSslCertificate::verify({_certificate});
+    auto result = QSslCertificate::verify({_certificate});
+
+    auto hasNeededExtendedKeyUsageExtension = false;
+    for (const auto &oneExtension : _certificate.extensions()) {
+        if (oneExtension.oid() == QStringLiteral("2.5.29.37")) {
+            const auto extendedKeyUsageList = oneExtension.value().toList();
+            for (const auto &oneExtendedKeyUsageValue : extendedKeyUsageList) {
+                if (oneExtendedKeyUsageValue == QStringLiteral("E-mail Protection")) {
+                    hasNeededExtendedKeyUsageExtension = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!hasNeededExtendedKeyUsageExtension) {
+        result.append(QSslError{QSslError::InvalidPurpose});
+    }
+
+    return result;
 }
 
 bool CertificateInformation::isSelfSigned() const

@@ -21,6 +21,7 @@
 
 #include <QLoggingCategory>
 #include <QtConcurrentRun>
+#include <QSslCertificateExtension>
 
 #include <libp11.h>
 
@@ -240,6 +241,26 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
                 continue;
             }
 
+            auto hasNeededExtendedKeyUsageExtension = false;
+            const auto &allExtensions = sslCertificate.extensions();
+            for (const auto &oneExtension : allExtensions) {
+                qCDebug(lcCseSelector()) << "extension:" << (oneExtension.isCritical() ? "is critical" : "") << (oneExtension.isSupported() ? "is supported" : "") << oneExtension.name() << oneExtension.value() << oneExtension.oid();
+                if (oneExtension.oid() == QStringLiteral("2.5.29.37")) {
+                    const auto extendedKeyUsageList = oneExtension.value().toList();
+                    for (const auto &oneExtendedKeyUsageValue : extendedKeyUsageList) {
+                        qCDebug(lcCseSelector()) << "EKU:" << oneExtendedKeyUsageValue;
+                        if (oneExtendedKeyUsageValue == QStringLiteral("E-mail Protection")) {
+                            hasNeededExtendedKeyUsageExtension = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!hasNeededExtendedKeyUsageExtension) {
+                qCDebug(lcCseSelector()) << "newly found certificate is missing the required EKU extension: Secure Email (1.3.6.1.5.5.7.3.4)";
+                continue;
+            }
+
             _discoveredCertificates.push_back(QVariantMap{
                                                           {QStringLiteral("label"), QString::fromLatin1(currentCertificate->label)},
                                                           {QStringLiteral("subject"), sslCertificate.subjectDisplayName()},
@@ -250,6 +271,10 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
                                                           {QStringLiteral("sha256Fingerprint"), certificateDigest},
                                                           {QStringLiteral("certificate"), QVariant::fromValue(sslCertificate)},
                                                           });
+
+            std::sort(_discoveredCertificates.begin(), _discoveredCertificates.end(), [] (const auto &first, const auto &second) -> bool {
+                return first.toMap()[QStringLiteral("validSince")].toDateTime() > second.toMap()[QStringLiteral("validSince")].toDateTime();
+            });
         }
     }
 
@@ -259,7 +284,8 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
 
 void ClientSideEncryptionTokenSelector::processDiscoveredCertificates()
 {
-    for (const auto &oneCertificate : discoveredCertificates()) {
+    const auto &allCertificates = discoveredCertificates();
+    for (const auto &oneCertificate : allCertificates) {
         const auto certificateData = oneCertificate.toMap();
         const auto sslCertificate = certificateData[QStringLiteral("certificate")].value<QSslCertificate>();
         if (sslCertificate.isNull()) {
@@ -267,8 +293,11 @@ void ClientSideEncryptionTokenSelector::processDiscoveredCertificates()
             continue;
         }
         const auto sslErrors = QSslCertificate::verify({sslCertificate});
-        for (const auto &oneError : sslErrors) {
-            qCInfo(lcCseSelector()) << oneError;
+        if (!sslErrors.isEmpty()) {
+            for (const auto &oneError : sslErrors) {
+                qCInfo(lcCseSelector()) << oneError;
+            }
+            continue;
         }
 
         const auto &sha256Fingerprint = sslCertificate.digest(QCryptographicHash::Sha256).toBase64();
