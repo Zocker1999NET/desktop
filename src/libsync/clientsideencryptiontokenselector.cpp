@@ -1,5 +1,6 @@
 /*
  * Copyright © 2023, Matthieu Gallien <matthieu.gallien@nextcloud.com>
+ * Copyright (C) 2017 The Qt Company Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,6 +11,33 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * for more details.
+ *
+ * Commercial License Usage
+ * Licensees holding valid commercial Qt licenses may use this file in
+ * accordance with the commercial license agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in
+ * a written agreement between you and The Qt Company. For licensing terms
+ * and conditions see https://www.qt.io/terms-conditions. For further
+ * information use the contact form at https://www.qt.io/contact-us.
+ *
+ * GNU Lesser General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU Lesser
+ * General Public License version 3 as published by the Free Software
+ * Foundation and appearing in the file LICENSE.LGPL3 included in the
+ * packaging of this file. Please review the following information to
+ * ensure the GNU Lesser General Public License version 3 requirements
+ * will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
+ *
+ * GNU General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU
+ * General Public License version 2.0 or (at your option) the GNU General
+ * Public license version 3 or any later version approved by the KDE Free
+ * Qt Foundation. The licenses are as published by the Free Software
+ * Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+ * included in the packaging of this file. Please review the following
+ * information to ensure the GNU General Public License requirements will
+ * be met: https://www.gnu.org/licenses/gpl-2.0.html and
+ * https://www.gnu.org/licenses/gpl-3.0.html.
  */
 
 #include <openssl/pem.h>
@@ -22,6 +50,10 @@
 #include <QLoggingCategory>
 #include <QtConcurrentRun>
 #include <QSslCertificateExtension>
+
+#if defined(Q_OS_WIN)
+#include <wincrypt.h>
+#endif
 
 #include <libp11.h>
 
@@ -148,6 +180,40 @@ void ClientSideEncryptionTokenSelector::setSha256Fingerprint(const QByteArray &s
 
 void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &account)
 {
+#if defined(Q_OS_WIN)
+    auto sslConfig = QSslConfiguration::defaultConfiguration();
+
+    for (const auto &storeName : std::vector<std::wstring>{L"CA"}) {
+        auto systemStore = CertOpenSystemStore(0, storeName.data());
+        if (systemStore) {
+            auto certificatePointer = PCCERT_CONTEXT{nullptr};
+            while (true) {
+                certificatePointer = CertFindCertificateInStore(systemStore, X509_ASN_ENCODING, 0, CERT_FIND_ANY, nullptr, certificatePointer);
+                if (!certificatePointer) {
+                    break;
+                }
+                const auto der = QByteArray{reinterpret_cast<const char *>(certificatePointer->pbCertEncoded),
+                                            static_cast<int>(certificatePointer->cbCertEncoded)};
+                const auto cert = QSslCertificate{der, QSsl::Der};
+
+                qCDebug(lcCseSelector()) << "found certificate" << cert.subjectDisplayName() << cert.issuerDisplayName() << "from store" << storeName;
+
+                sslConfig.addCaCertificate(cert);
+            }
+            CertCloseStore(systemStore, 0);
+        }
+    }
+
+    QSslConfiguration::setDefaultConfiguration(sslConfig);
+#endif
+
+    qCDebug(lcCseSelector()) << "existing CA certificates";
+    const auto currentSslConfig = QSslConfiguration::defaultConfiguration();
+    const auto &caCertificates = currentSslConfig.caCertificates();
+    for (const auto &oneCaCertificate : caCertificates) {
+        qCDebug(lcCseSelector()) << oneCaCertificate.subjectDisplayName() << oneCaCertificate.issuerDisplayName();
+    }
+
     Pkcs11Context ctx;
 
     auto rc = PKCS11_CTX_load(ctx, account->encryptionHardwareTokenDriverPath().toLatin1().constData());
