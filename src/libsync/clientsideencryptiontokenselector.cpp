@@ -246,7 +246,7 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
     for(auto tokenIndex = 0u; tokenIndex < tokensCount; ++tokenIndex) {
         currentSlot = PKCS11_find_next_token(ctx, tokenSlots, tokensCount, currentSlot);
         if (currentSlot == nullptr || currentSlot->token == nullptr) {
-            continue;
+            break;
         }
 
         qCDebug(lcCseSelector()) << "Slot manufacturer......:" << currentSlot->manufacturer;
