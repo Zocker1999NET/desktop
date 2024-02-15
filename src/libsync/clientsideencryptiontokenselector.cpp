@@ -243,7 +243,7 @@ void ClientSideEncryptionTokenSelector::discoverCertificates(const AccountPtr &a
 
     _discoveredCertificates.clear();
     auto currentSlot = static_cast<PKCS11_SLOT*>(nullptr);
-    for(auto i = 0u; i < tokensCount; ++i) {
+    for(auto tokenIndex = 0u; tokenIndex < tokensCount; ++tokenIndex) {
         currentSlot = PKCS11_find_next_token(ctx, tokenSlots, tokensCount, currentSlot);
         if (currentSlot == nullptr || currentSlot->token == nullptr) {
             continue;
