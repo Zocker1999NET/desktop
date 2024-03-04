@@ -16,6 +16,7 @@
 #include "customstateprovider.h"
 #include "thumbnailprovider.h"
 #include <comdef.h>
+#include <tchar.h>
 
 long dllReferenceCount = 0;
 long dllObjectsCount = 0;
@@ -25,26 +26,15 @@ HINSTANCE instanceHandle = nullptr;
 HRESULT CustomStateProvider_CreateInstance(REFIID riid, void **ppv);
 HRESULT ThumbnailProvider_CreateInstance(REFIID riid, void **ppv);
 
+HWND hHiddenWnd = nullptr;
+DWORD WINAPI MessageLoopThread(LPVOID lpParameter);
+LRESULT CALLBACK HiddenWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+void CreateHiddenWindowAndLaunchMessageLoop();
+
 const VfsShellExtensions::ClassObjectInit listClassesSupported[] = {
     {&__uuidof(winrt::CfApiShellExtensions::implementation::CustomStateProvider), CustomStateProvider_CreateInstance},
     {&__uuidof(VfsShellExtensions::ThumbnailProvider), ThumbnailProvider_CreateInstance}
 };
-
-DWORD WINAPI FreeLibraryLoopThread(LPVOID lpParameter)
-{
-    // replace this with a code that's receiving a control message from the main application via local socket (like thumbnail provider does)
-    // alternatively, come up with a WM_CLOSE message way and a hidden window (did not work for me this time as Window could not be found by class name)
-    // same approach can be used for another shell extension that works with file stats overlays and context menu
-    // then, maybe disable reboot in the MSI, and
-    // either make MSI send a WM_CLOSE message to shell extensions or make it use nextcloud.exe to send a control message via localsoket
-    int sleepTotal = 0;
-    while (sleepTotal < 5000) {
-        Sleep(1000);
-        sleepTotal += 1000;
-    }
-    FreeLibrary(instanceHandle);
-    return 0;
-}
 
 STDAPI_(BOOL) DllMain(HINSTANCE hInstance, DWORD dwReason, void *)
 {
@@ -54,11 +44,8 @@ STDAPI_(BOOL) DllMain(HINSTANCE hInstance, DWORD dwReason, void *)
         ::GetModuleFileName(instanceHandle, dllFilePath, _MAX_PATH);
         winrt::CfApiShellExtensions::implementation::CustomStateProvider::setDllFilePath(dllFilePath);
         DisableThreadLibraryCalls(hInstance);
-
-        DWORD threadId;
-        HANDLE hThread = CreateThread(NULL, 0, FreeLibraryLoopThread, NULL, 0, &threadId);
-        if (hThread)
-            CloseHandle(hThread);
+  
+        CreateHiddenWindowAndLaunchMessageLoop();
     }
 
     return TRUE;
@@ -93,4 +80,67 @@ HRESULT ThumbnailProvider_CreateInstance(REFIID riid, void **ppv)
     const auto hresult = thumbnailProvider->QueryInterface(riid, ppv);
     thumbnailProvider->Release();
     return hresult;
+}
+
+void CreateHiddenWindowAndLaunchMessageLoop()
+{
+    const WNDCLASSEX hiddenWindowClass {
+        sizeof(WNDCLASSEX),
+        CS_CLASSDC,
+        HiddenWndProc,
+        0L,
+        0L,
+        GetModuleHandle(NULL),
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        _T(CFAPI_SHELLEXT_WINDOW_CLASS_NAME),
+        NULL
+    };
+
+    RegisterClassEx(&hiddenWindowClass);
+
+    hHiddenWnd = CreateWindow(
+        hiddenWindowClass.lpszClassName,
+        _T(""),
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        NULL,
+        NULL,
+        hiddenWindowClass.hInstance,
+        NULL);
+
+    ShowWindow(hHiddenWnd, SW_HIDE);
+    UpdateWindow(hHiddenWnd);
+
+    const auto hMessageLoopThread = CreateThread(NULL, 0, MessageLoopThread, NULL, 0, NULL);
+    if (hMessageLoopThread) {
+        CloseHandle(hMessageLoopThread);
+    }
+}
+
+DWORD WINAPI MessageLoopThread(LPVOID lpParameter)
+{
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+    return 0;
+}
+
+LRESULT CALLBACK HiddenWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch (msg) {
+    case WM_CLOSE:
+        FreeLibrary(instanceHandle);
+        break;
+    default:
+        return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+    return 0;
 }
