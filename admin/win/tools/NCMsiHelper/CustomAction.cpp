@@ -94,6 +94,34 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
     return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
 }
 
+UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
+{
+    return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
+}
+
+UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
+{
+    TCHAR className[MAX_PATH];
+    DWORD classNameSize = MAX_PATH;
+    UINT getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
+
+    if (getPropertyRes != ERROR_SUCCESS) {
+        return getPropertyRes;
+    }
+
+    if (classNameSize <= 0) {
+        return ERROR_BAD_ARGUMENTS;
+    }
+
+    const auto windowToCloseHandle = FindWindow(className, NULL);
+
+    if (windowToCloseHandle != NULL) {
+        SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
+    }
+
+    return ERROR_SUCCESS;
+}
+
 /**
  * DllMain - Initialize and cleanup WiX custom action utils.
  */

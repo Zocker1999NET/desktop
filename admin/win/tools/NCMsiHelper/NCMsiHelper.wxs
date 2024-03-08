@@ -39,5 +39,12 @@
                     Execute="deferred"
                     Impersonate="yes" />
 
+      <CustomAction Id="CloseWindowByClassName"
+                    Return="ignore"
+                    BinaryKey="NCMsiHelper"
+                    DllEntry="CloseWindowByClassName"
+                    Execute="deferred"
+                    Impersonate="yes" />
+
     </Fragment>
 </Wix>

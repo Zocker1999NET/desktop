@@ -67,11 +67,21 @@
     <!-- Quit / restart application -->
     <util:RestartResource ProcessName="$(var.AppExe)" />
 
-    <!-- Helper DLL Custom Actions -->
+    <Property Id="CFAPISHELLEXTWNDCLASSNAME">$(var.CfApiShellextWndClassName)</Property>
+    <Property Id="NCOVERLAYSSHELLEXTWNDCLASSNAME" Value="NCOVERLAYSSHELLEXTWNDCLASSNAME"/>
+      
+    <CustomAction Id="SetCfApiWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="[CFAPISHELLEXTWNDCLASSNAME]" />
+    <CustomAction Id="SetNCOverlaysWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="[NCOVERLAYSSHELLEXTWNDCLASSNAME]" />
+
+      <!-- Helper DLL Custom Actions -->
     <SetProperty Id="ExecNsisUninstaller" Value="&quot;$(var.AppShortName)&quot; &quot;[NSIS_UNINSTALLEXE]&quot;" Before="ExecNsisUninstaller" Sequence="execute" />
     <SetProperty Id="RemoveNavigationPaneEntries" Value="&quot;$(var.AppName)&quot;" Before="RemoveNavigationPaneEntries" Sequence="execute" />
 
     <InstallExecuteSequence>
+      <Custom Action="SetCfApiWindowClassName" Before="RemoveFiles">REMOVE="ALL"</Custom>
+      <Custom Action="CloseWindowByClassName" After="SetCfApiWindowClassName">REMOVE="ALL"</Custom>
+      <Custom Action="SetNCOverlaysWindowClassName" After="CloseWindowByClassName">REMOVE="ALL"</Custom>
+      <Custom Action="CloseWindowByClassName" After="SetNCOverlaysWindowClassName">REMOVE="ALL"</Custom>
         <!-- Install: Remove previous NSIS installation, if detected -->
         <Custom Action="ExecNsisUninstaller" Before="ProcessComponents">NSIS_UNINSTALLEXE AND NOT Installed</Custom>
 
