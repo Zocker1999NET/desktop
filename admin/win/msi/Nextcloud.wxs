@@ -67,7 +67,7 @@
     <!-- Quit / restart application -->
     <util:RestartResource ProcessName="$(var.AppExe)" />
 
-    <Property Id="WNDCLASSNAMETOCLOSE" Value="" />
+    <Property Id="WNDCLASSNAMETOCLOSE"/>
     <Property Id="CFAPISHELLEXTWNDCLASSNAME">$(var.CfApiShellextWndClassName)</Property>
     <Property Id="NCOVERLAYSSHELLEXTWNDCLASSNAME" Value="NCOVERLAYSSHELLEXTWNDCLASSNAME"/>
       
