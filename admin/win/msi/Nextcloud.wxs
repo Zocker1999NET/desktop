@@ -76,7 +76,7 @@
     <SetProperty Id="RemoveNavigationPaneEntries" Value="&quot;$(var.AppName)&quot;" Before="RemoveNavigationPaneEntries" Sequence="execute" />
 
     <InstallExecuteSequence>
-      <Custom Action="SetCfApiWindowClassName" Before="ProcessComponents">REMOVE="ALL"</Custom>
+      <Custom Action="SetCfApiWindowClassName" Before="RemoveFiles">REMOVE="ALL"</Custom>
       <Custom Action="CloseCfApiShellExtension" After="SetCfApiWindowClassName">REMOVE="ALL"</Custom>
       <Custom Action="SetNCOverlaysWindowClassName" After="CloseCfApiShellExtension">REMOVE="ALL"</Custom>
       <Custom Action="CloseNcOverlaysShellExtension" After="SetNCOverlaysWindowClassName">REMOVE="ALL"</Custom>
