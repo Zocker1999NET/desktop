@@ -96,7 +96,7 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
 
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 {
-    MessageBox(NULL, "CloseWindowByClassName!", "CloseWindowByClassName!", MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName!"), MB_OK | MB_ICONINFORMATION);
     TCHAR className[MAX_PATH];
     DWORD classNameSize = MAX_PATH;
     const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
