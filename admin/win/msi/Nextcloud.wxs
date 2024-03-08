@@ -67,12 +67,9 @@
     <!-- Quit / restart application -->
     <util:RestartResource ProcessName="$(var.AppExe)" />
 
-    <Property Id="WNDCLASSNAMETOCLOSE"/>
-    <Property Id="CFAPISHELLEXTWNDCLASSNAME">$(var.CfApiShellextWndClassName)</Property>
-    <Property Id="NCOVERLAYSSHELLEXTWNDCLASSNAME" Value="NCOVERLAYSSHELLEXTWNDCLASSNAME"/>
-      
-    <CustomAction Id="SetCfApiWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="[CFAPISHELLEXTWNDCLASSNAME]" />
-    <CustomAction Id="SetNCOverlaysWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="[NCOVERLAYSSHELLEXTWNDCLASSNAME]" />
+    <Property Id="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
+    <CustomAction Id="SetCfApiWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
+    <CustomAction Id="SetNCOverlaysWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
 
       <!-- Helper DLL Custom Actions -->
     <SetProperty Id="ExecNsisUninstaller" Value="&quot;$(var.AppShortName)&quot; &quot;[NSIS_UNINSTALLEXE]&quot;" Before="ExecNsisUninstaller" Sequence="execute" />
