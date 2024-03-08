@@ -94,11 +94,6 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
     return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
 }
 
-UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
-{
-    return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
-}
-
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 {
     TCHAR className[MAX_PATH];
