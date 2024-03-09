@@ -81,9 +81,9 @@
 
     <InstallExecuteSequence>
       <Custom Action="SetCfApiWindowClassName" Before="InstallValidate"/>
-      <Custom Action="CloseWindowByClassName" After="SetCfApiWindowClassName" />
-      <Custom Action="SetNCOverlaysWindowClassName" After="CloseWindowByClassName"/>
-      <Custom Action="CloseWindowByClassName" After="SetNCOverlaysWindowClassName" />
+      <Custom Action="CloseCfApiShellExtension" After="SetCfApiWindowClassName" />
+      <Custom Action="SetNCOverlaysWindowClassName" After="CloseCfApiShellExtension"/>
+      <Custom Action="CloseNcOverlaysShellExtension" After="SetNCOverlaysWindowClassName" />
         <!-- Install: Remove previous NSIS installation, if detected -->
         <Custom Action="ExecNsisUninstaller" Before="ProcessComponents">NSIS_UNINSTALLEXE AND NOT Installed</Custom>
 

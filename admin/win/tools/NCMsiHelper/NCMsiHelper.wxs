@@ -39,7 +39,13 @@
                     Execute="deferred"
                     Impersonate="yes" />
 
-      <CustomAction Id="CloseWindowByClassName"
+      <CustomAction Id="CloseCfApiShellExtension"
+                    Return="ignore"
+                    BinaryKey="NCMsiHelper"
+                    DllEntry="CloseWindowByClassName"
+                    Execute="immediate"
+                    Impersonate="yes" />
+      <CustomAction Id="CloseNcOverlaysShellExtension"
                     Return="ignore"
                     BinaryKey="NCMsiHelper"
                     DllEntry="CloseWindowByClassName"
