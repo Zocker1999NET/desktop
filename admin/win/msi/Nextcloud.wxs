@@ -77,7 +77,7 @@
 
     <InstallExecuteSequence>
       <Custom Action="CloseCfApiShellExtension" After="InstallInitialize" />
-      <Custom Action="CloseNcOverlaysShellExtension" Before="InstallInitialize" />
+      <Custom Action="CloseNcOverlaysShellExtension" After="InstallInitialize" />
         <!-- Install: Remove previous NSIS installation, if detected -->
         <Custom Action="ExecNsisUninstaller" Before="ProcessComponents">NSIS_UNINSTALLEXE AND NOT Installed</Custom>
 
