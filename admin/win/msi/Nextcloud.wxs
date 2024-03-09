@@ -66,14 +66,11 @@
 
     <!-- Quit / restart application -->
     <util:RestartResource ProcessName="$(var.AppExe)" />
-
-    <!-- Set "CustomActionData" property for custom actions in DLL-->
-    <Property Id="CloseCfApiShellExtension" Value="$(var.CfApiShellextWndClassName)" />
-    <Property Id="CloseNcOverlaysShellExtension" Value="$(var.CfApiShellextWndClassName)" />
      
     <Property Id="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
     <CustomAction Id="SetCfApiWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
-    <CustomAction Id="SetNCOverlaysWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.CfApiShellextWndClassName)" />
+    <CustomAction Id="SetNCContextMenuWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.NCContextMenuShellextWndClassName)" />
+    <CustomAction Id="SetNCOverlaysWindowClassName" Property="WNDCLASSNAMETOCLOSE" Value="$(var.NCOverlaysShellextWndClassName)" />
 
       <!-- Helper DLL Custom Actions -->
     <SetProperty Id="ExecNsisUninstaller" Value="&quot;$(var.AppShortName)&quot; &quot;[NSIS_UNINSTALLEXE]&quot;" Before="ExecNsisUninstaller" Sequence="execute" />
@@ -82,8 +79,10 @@
     <InstallExecuteSequence>
       <Custom Action="SetCfApiWindowClassName" Before="InstallValidate"/>
       <Custom Action="CloseCfApiShellExtension" After="SetCfApiWindowClassName" />
-      <Custom Action="SetNCOverlaysWindowClassName" After="CloseCfApiShellExtension"/>
-      <Custom Action="CloseNcOverlaysShellExtension" After="SetNCOverlaysWindowClassName" />
+      <Custom Action="SetNCContextMenuWindowClassName" After="CloseCfApiShellExtension"/>
+      <Custom Action="CloseNCContextMenuShellExtension" After="SetNCContextMenuWindowClassName" />
+      <Custom Action="SetNCOverlaysWindowClassName" After="CloseNCContextMenuShellExtension"/>
+      <Custom Action="CloseNCOverlaysShellExtension" After="SetNCOverlaysWindowClassName" />
         <!-- Install: Remove previous NSIS installation, if detected -->
         <Custom Action="ExecNsisUninstaller" Before="ProcessComponents">NSIS_UNINSTALLEXE AND NOT Installed</Custom>
 

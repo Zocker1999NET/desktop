@@ -45,7 +45,13 @@
                     DllEntry="CloseWindowByClassName"
                     Execute="immediate"
                     Impersonate="yes" />
-      <CustomAction Id="CloseNcOverlaysShellExtension"
+      <CustomAction Id="CloseNCContextMenuShellExtension"
+                     Return="ignore"
+                     BinaryKey="NCMsiHelper"
+                     DllEntry="CloseWindowByClassName"
+                     Execute="immediate"
+                     Impersonate="yes" />
+      <CustomAction Id="CloseNCOverlaysShellExtension"
                     Return="ignore"
                     BinaryKey="NCMsiHelper"
                     DllEntry="CloseWindowByClassName"
