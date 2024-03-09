@@ -43,15 +43,13 @@
                     Return="ignore"
                     BinaryKey="NCMsiHelper"
                     DllEntry="CloseWindowByClassName"
-                    Execute="deferred"
-                    Impersonate="yes" />
+                    Execute="immediate"/>
 
       <CustomAction Id="CloseNcOverlaysShellExtension"
                     Return="ignore"
                     BinaryKey="NCMsiHelper"
                     DllEntry="CloseWindowByClassName"
-                    Execute="deferred"
-                    Impersonate="yes" />
+                    Execute="immediate"/>
 
     </Fragment>
 </Wix>
