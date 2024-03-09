@@ -113,11 +113,6 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     LogResult(S_OK, "CloseWindowByClassName className = '%ls'.", className);
     LogResult(S_OK, "CloseWindowByClassName className = '%s'.", className);
 
-    if (classNameSize <= 0) {
-        LogResult(E_FAIL, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE classNameSize = '%d'.", classNameSize);
-        return ERROR_BAD_ARGUMENTS;
-    }
-
     MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName3"), MB_OK | MB_ICONINFORMATION);
 
     const auto windowToCloseHandle = FindWindow(className, NULL);
