@@ -117,7 +117,9 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     const auto windowClassPropertyName = _T("WNDCLASSNAMETOCLOSE");
     DWORD windowClassNameSize = 0;
     if (MsiGetProperty(hInstall, windowClassPropertyName, _T(""), &windowClassNameSize) != ERROR_MORE_DATA) {
-        LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. MsiGetProperty failed for windowClassPropertyName: %s", windowClassPropertyName));
+        LogMsiInfoMessage(hInstall,
+                          _T("ERROR: Custom action CloseWindowByClassName. MsiGetProperty failed for windowClassPropertyName: %s"),
+                          windowClassPropertyName);
         return ERROR_BAD_ARGUMENTS;
     }
 
@@ -129,10 +131,11 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     ++windowClassNameSize;
 
     std::vector<TCHAR> windowClassNameValue(windowClassNameSize, 0);
+    std::vector<char> vec;
     const auto getPropertyRes = MsiGetProperty(hInstall, windowClassPropertyName, windowClassNameValue.data(), &windowClassNameSize);
     if (getPropertyRes != ERROR_SUCCESS) {
         LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. MsiGetProperty failed for windowClassPropertyName: %s with code: %d"),
-            windowClassPropertyName,
+            windowClassNameValue.data(),
             getPropertyRes);
         return getPropertyRes;
     }
@@ -142,7 +145,7 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
         return ERROR_BAD_ARGUMENTS;
     }
 
-    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName is running for windowClassNameValue: %s"), windowClassNameValue);
+    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName is running for windowClassNameValue: %s"), windowClassNameValue.data());
 
     const auto windowToCloseHandle = FindWindow(windowClassNameValue.data(), NULL);
     if (windowToCloseHandle == NULL) {
@@ -151,7 +154,7 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
         return ERROR_SUCCESS;
     }
 
-    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName. Sending WM_CLOSE message to windowClassNameValue: %s"), windowClassNameValue);
+    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName. Sending WM_CLOSE message to windowClassNameValue: %s"), windowClassNameValue.data());
 
     SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
 
