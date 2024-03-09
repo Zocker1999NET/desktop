@@ -104,29 +104,29 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
 
     if (getPropertyRes != ERROR_SUCCESS) {
-        LogResult(E_FAIL, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE getPropertyRes = '%d'.", getPropertyRes);
+        MessageBox(NULL, _T("CloseWindowByClassName!"), _T("getPropertyRes != ERROR_SUCCESS"), MB_OK | MB_ICONERROR);
         return getPropertyRes;
     }
 
+    if (classNameSize <= 0) {
+        MessageBox(NULL, _T("CloseWindowByClassName!"), _T("classNameSize is zero or less"), MB_OK | MB_ICONERROR);
+    }
+
+
     MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName2"), MB_OK | MB_ICONINFORMATION);
-
-    LogResult(S_OK, "CloseWindowByClassName className = '%ls'.", className);
-    LogResult(S_OK, "CloseWindowByClassName className = '%s'.", className);
-
-    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName3"), MB_OK | MB_ICONINFORMATION);
 
     const auto windowToCloseHandle = FindWindow(className, NULL);
 
     if (windowToCloseHandle == NULL) {
-        LogResult(E_FAIL, "CloseWindowByClassName Failed to FindWindow className classNameSize = '%d'.", GetLastError());
+        MessageBox(NULL, _T("CloseWindowByClassName!"), _T("handle is NULL"), MB_OK | MB_ICONERROR);
         return ERROR_BAD_ARGUMENTS;
     }
 
-    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName4"), MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName3"), MB_OK | MB_ICONINFORMATION);
 
     SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
 
-    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName5"), MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName4"), MB_OK | MB_ICONINFORMATION);
 
     return ERROR_SUCCESS;
 }
