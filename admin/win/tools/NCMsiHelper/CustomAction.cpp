@@ -114,7 +114,7 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 
     TCHAR className[2048] = {0};
     DWORD classNameSize = sizeof(className) / sizeof(TCHAR);
-    const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
+    const auto getPropertyRes = MsiGetProperty(hInstall, _T("CustomActionData"), className, &classNameSize);
 
     LogMessage(hInstall, _T("Custom action CloseWindowByClassName is running. getPropertyRes: %d, className: %s, classNameSize: %d"), getPropertyRes, className, classNameSize);
 
