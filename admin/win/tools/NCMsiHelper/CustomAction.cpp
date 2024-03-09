@@ -126,6 +126,8 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
         return ERROR_BAD_ARGUMENTS;
     }
 
+    ++windowClassNameSize;
+
     std::vector<TCHAR> windowClassNameValue(windowClassNameSize, 0);
     const auto getPropertyRes = MsiGetProperty(hInstall, windowClassPropertyName, windowClassNameValue.data(), &windowClassNameSize);
     if (getPropertyRes != ERROR_SUCCESS) {
