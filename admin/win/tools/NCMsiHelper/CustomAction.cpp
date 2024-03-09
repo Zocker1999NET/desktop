@@ -21,6 +21,8 @@
 
 #include "NCMsiHelper.h"
 
+#include "LogResult.h"
+
 /**
  *  Sets up logging for MSIs and then calls the appropriate custom action with argc/argv parameters.
  * 
@@ -96,33 +98,40 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
 
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 {
-    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName!"), MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName1"), MB_OK | MB_ICONINFORMATION);
     TCHAR className[MAX_PATH];
     DWORD classNameSize = MAX_PATH;
     const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
 
     if (getPropertyRes != ERROR_SUCCESS) {
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE getPropertyRes = '%d'.", getPropertyRes);
+        LogResult(E_FAIL, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE getPropertyRes = '%d'.", getPropertyRes);
         return getPropertyRes;
     }
 
-    WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName className = '%ls'.", className);
-    WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName className = '%s'.", className);
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName2"), MB_OK | MB_ICONINFORMATION);
+
+    LogResult(S_OK, "CloseWindowByClassName className = '%ls'.", className);
+    LogResult(S_OK, "CloseWindowByClassName className = '%s'.", className);
 
     if (classNameSize <= 0) {
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE classNameSize = '%d'.", classNameSize);
+        LogResult(E_FAIL, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE classNameSize = '%d'.", classNameSize);
         return ERROR_BAD_ARGUMENTS;
     }
+
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName3"), MB_OK | MB_ICONINFORMATION);
 
     const auto windowToCloseHandle = FindWindow(className, NULL);
 
     if (windowToCloseHandle == NULL) {
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to FindWindow className classNameSize = '%d'.", GetLastError());
+        LogResult(E_FAIL, "CloseWindowByClassName Failed to FindWindow className classNameSize = '%d'.", GetLastError());
+        return ERROR_BAD_ARGUMENTS;
     }
 
-    if (windowToCloseHandle != NULL) {
-        SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
-    }
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName4"), MB_OK | MB_ICONINFORMATION);
+
+    SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
+
+    MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName5"), MB_OK | MB_ICONINFORMATION);
 
     return ERROR_SUCCESS;
 }

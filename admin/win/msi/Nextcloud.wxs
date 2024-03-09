@@ -76,10 +76,10 @@
     <SetProperty Id="RemoveNavigationPaneEntries" Value="&quot;$(var.AppName)&quot;" Before="RemoveNavigationPaneEntries" Sequence="execute" />
 
     <InstallExecuteSequence>
-      <Custom Action="SetCfApiWindowClassName" Before="RemoveFiles">REMOVE="ALL"</Custom>
-      <Custom Action="CloseCfApiShellExtension" After="SetCfApiWindowClassName">REMOVE="ALL"</Custom>
-      <Custom Action="SetNCOverlaysWindowClassName" After="CloseCfApiShellExtension">REMOVE="ALL"</Custom>
-      <Custom Action="CloseNcOverlaysShellExtension" After="SetNCOverlaysWindowClassName">REMOVE="ALL"</Custom>
+      <Custom Action="SetCfApiWindowClassName" Before="RemoveFiles"/>
+      <Custom Action="CloseCfApiShellExtension" After="SetCfApiWindowClassName"/>
+      <Custom Action="SetNCOverlaysWindowClassName" After="CloseCfApiShellExtension"/>
+      <Custom Action="CloseNcOverlaysShellExtension" After="SetNCOverlaysWindowClassName"/>
         <!-- Install: Remove previous NSIS installation, if detected -->
         <Custom Action="ExecNsisUninstaller" Before="ProcessComponents">NSIS_UNINSTALLEXE AND NOT Installed</Custom>
 
