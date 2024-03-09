@@ -96,12 +96,27 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
     return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
 }
 
+UINT LogMessage(MSIHANDLE hInstall, const TCHAR *format, ...)
+{
+    TCHAR szFormatted[MAX_PATH];
+
+    va_list args;
+    va_start(args, format);
+    vswprintf(szFormatted, MAX_PATH, format, args);
+    va_end(args);
+
+    return MsiProcessMessage(hInstall, INSTALLMESSAGE_INFO, szFormatted);
+}
+
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 {
     MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName1"), MB_OK | MB_ICONINFORMATION);
-    TCHAR className[MAX_PATH];
-    DWORD classNameSize = MAX_PATH;
+
+    TCHAR className[2048] = {0};
+    DWORD classNameSize = sizeof(className) / sizeof(TCHAR);
     const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
+
+    LogMessage(hInstall, _T("Custom action CloseWindowByClassName is running. getPropertyRes: %d, className: %s, classNameSize: %d"), getPropertyRes, className, classNameSize);
 
     if (getPropertyRes != ERROR_SUCCESS) {
         MessageBox(NULL, _T("CloseWindowByClassName!"), _T("getPropertyRes != ERROR_SUCCESS"), MB_OK | MB_ICONERROR);
@@ -112,12 +127,16 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
         MessageBox(NULL, _T("CloseWindowByClassName!"), _T("classNameSize is zero or less"), MB_OK | MB_ICONERROR);
     }
 
-
     MessageBox(NULL, _T("CloseWindowByClassName!"), _T("CloseWindowByClassName2"), MB_OK | MB_ICONINFORMATION);
 
     const auto windowToCloseHandle = FindWindow(className, NULL);
 
     if (windowToCloseHandle == NULL) {
+        LogMessage(hInstall,
+                   _T("Custom action CloseWindowByClassName is running. Handle is null!"),
+                   getPropertyRes,
+                   className,
+                   classNameSize);
         MessageBox(NULL, _T("CloseWindowByClassName!"), _T("handle is NULL"), MB_OK | MB_ICONERROR);
         return ERROR_BAD_ARGUMENTS;
     }
