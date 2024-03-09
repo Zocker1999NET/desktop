@@ -21,8 +21,7 @@
 
 #include "NCMsiHelper.h"
 #include <MsiQuery.h>
-
-#include "LogResult.h"
+#include <vector>
 
 /**
  *  Sets up logging for MSIs and then calls the appropriate custom action with argc/argv parameters.
@@ -97,7 +96,7 @@ UINT __stdcall RemoveNavigationPaneEntries(MSIHANDLE hInstall)
     return CustomActionArgcArgv(hInstall, DoRemoveNavigationPaneEntries, "RemoveNavigationPaneEntries");
 }
 
-UINT LogMsiMessage(MSIHANDLE hInstall, INSTALLMESSAGE eMessageType, const TCHAR *format, ...)
+UINT LogMsiInfoMessage(MSIHANDLE hInstall, const TCHAR *format, ...)
 {
     TCHAR szFormatted[MAX_PATH];
 
@@ -109,43 +108,48 @@ UINT LogMsiMessage(MSIHANDLE hInstall, INSTALLMESSAGE eMessageType, const TCHAR 
     PMSIHANDLE hRecord = ::MsiCreateRecord(1);
     ::MsiRecordSetString(hRecord, 0, szFormatted);
 
-    return MsiProcessMessage(hInstall, eMessageType, hRecord);
+    // we are always logging a message as info, as error will bring a popup that we don't want, just logs
+    return MsiProcessMessage(hInstall, INSTALLMESSAGE_INFO, hRecord);
 }
 
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 {
-    TCHAR className[2048] = {0};
-    DWORD classNameSize = sizeof(className) / sizeof(TCHAR);
-    const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
-
-    LogMsiMessage(hInstall,
-                  INSTALLMESSAGE_INFO,
-                  _T("Custom action CloseWindowByClassName is running. getPropertyRes: %d, className: %s, classNameSize: %d"),
-                  getPropertyRes,
-                  className,
-                  classNameSize);
-
-    if (getPropertyRes != ERROR_SUCCESS) {
-        MessageBox(NULL, _T("CloseWindowByClassName"), _T("getPropertyRes != ERROR_SUCCESS"), MB_OK | MB_ICONERROR);
-        return getPropertyRes;
-    }
-
-    if (classNameSize <= 0) {
-        MessageBox(NULL, _T("CloseWindowByClassName"), _T("classNameSize is zero or less"), MB_OK | MB_ICONERROR);
-        LogMsiMessage(hInstall, INSTALLMESSAGE_ERROR, _T("Custom action CloseWindowByClassName classNameSize <= 0!"));
-    }
-
-    const auto windowToCloseHandle = FindWindow(className, NULL);
-
-    if (windowToCloseHandle == NULL) {
-        LogMsiMessage(hInstall, INSTALLMESSAGE_ERROR, _T("Custom action CloseWindowByClassName is running. Handle is null!"));
+    const auto windowClassPropertyName = _T("WNDCLASSNAMETOCLOSE");
+    DWORD windowClassNameSize = 0;
+    if (MsiGetProperty(hInstall, windowClassPropertyName, _T(""), &windowClassNameSize) != ERROR_MORE_DATA) {
+        LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. MsiGetProperty failed for windowClassPropertyName: %s", windowClassPropertyName));
         return ERROR_BAD_ARGUMENTS;
     }
 
-    LogMsiMessage(hInstall,
-                  INSTALLMESSAGE_INFO,
-                  _T("Sending WM_CLOSE message to Window: %s"),
-                  className);
+    if (windowClassNameSize <= 0) {
+        LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. classNameSize is <= 0!"));
+        return ERROR_BAD_ARGUMENTS;
+    }
+
+    std::vector<TCHAR> windowClassNameValue(windowClassNameSize, 0);
+    const auto getPropertyRes = MsiGetProperty(hInstall, windowClassPropertyName, windowClassNameValue.data(), &windowClassNameSize);
+    if (getPropertyRes != ERROR_SUCCESS) {
+        LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. MsiGetProperty failed for windowClassPropertyName: %s with code: %d"),
+            windowClassPropertyName,
+            getPropertyRes);
+        return getPropertyRes;
+    }
+
+    if (windowClassNameSize <= 0) {
+        LogMsiInfoMessage(hInstall, _T("ERROR: Custom action CloseWindowByClassName. Final classNameSize is <= 0!"));
+        return ERROR_BAD_ARGUMENTS;
+    }
+
+    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName is running for windowClassNameValue: %s"), windowClassNameValue);
+
+    const auto windowToCloseHandle = FindWindow(windowClassNameValue, NULL);
+    if (windowToCloseHandle == NULL) {
+        LogMsiInfoMessage(hInstall, _T("WARNING: Custom action CloseWindowByClassName. windowToCloseHandle is NULL."));
+        // FindWindow will return NULL if the window is not currently running, so not an error
+        return ERROR_SUCCESS;
+    }
+
+    LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName. Sending WM_CLOSE message to windowClassNameValue: %s"), windowClassNameValue);
 
     SendMessage(windowToCloseHandle, WM_CLOSE, 0, 0);
 
