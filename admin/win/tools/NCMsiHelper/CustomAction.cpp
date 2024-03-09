@@ -20,6 +20,7 @@
  */
 
 #include "NCMsiHelper.h"
+#include <MsiQuery.h>
 
 #include "LogResult.h"
 
@@ -105,7 +106,10 @@ UINT LogMessage(MSIHANDLE hInstall, const TCHAR *format, ...)
     vswprintf(szFormatted, MAX_PATH, format, args);
     va_end(args);
 
-    return MsiProcessMessage(hInstall, INSTALLMESSAGE_INFO, szFormatted);
+    PMSIHANDLE hRecord = ::MsiCreateRecord(1);
+    ::MsiRecordSetString(hRecord, 0, szFormatted);
+
+    return MsiProcessMessage(hInstall, INSTALLMESSAGE_INFO, hRecord);
 }
 
 UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
