@@ -142,7 +142,7 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
 
     LogMsiInfoMessage(hInstall, _T("Custom action CloseWindowByClassName is running for windowClassNameValue: %s"), windowClassNameValue);
 
-    const auto windowToCloseHandle = FindWindow(windowClassNameValue, NULL);
+    const auto windowToCloseHandle = FindWindow(windowClassNameValue.data(), NULL);
     if (windowToCloseHandle == NULL) {
         LogMsiInfoMessage(hInstall, _T("WARNING: Custom action CloseWindowByClassName. windowToCloseHandle is NULL."));
         // FindWindow will return NULL if the window is not currently running, so not an error
