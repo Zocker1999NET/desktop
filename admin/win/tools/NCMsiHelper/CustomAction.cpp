@@ -102,8 +102,7 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     const auto getPropertyRes = MsiGetProperty(hInstall, _T("WNDCLASSNAMETOCLOSE"), className, &classNameSize);
 
     if (getPropertyRes != ERROR_SUCCESS) {
-        ExitOnFailure(S_FALSE, "Failed to MsiGetProperty WNDCLASSNAMETOCLOSE.");
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName getPropertyRes = '%d'.", getPropertyRes);
+        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE getPropertyRes = '%d'.", getPropertyRes);
         return getPropertyRes;
     }
 
@@ -111,16 +110,14 @@ UINT __stdcall CloseWindowByClassName(MSIHANDLE hInstall)
     WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName className = '%s'.", className);
 
     if (classNameSize <= 0) {
-        ExitOnFailure(S_FALSE, "Failed to MsiGetProperty WNDCLASSNAMETOCLOSE.");
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName classNameSize = '%d'.", classNameSize);
+        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to MsiGetProperty WNDCLASSNAMETOCLOSE classNameSize = '%d'.", classNameSize);
         return ERROR_BAD_ARGUMENTS;
     }
 
     const auto windowToCloseHandle = FindWindow(className, NULL);
 
     if (windowToCloseHandle == NULL) {
-        ExitOnFailure(S_FALSE, "Failed to FindWindow className.");
-        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName classNameSize = '%d'.", GetLastError());
+        WcaLog(LOGMSG_STANDARD, "CloseWindowByClassName Failed to FindWindow className classNameSize = '%d'.", GetLastError());
     }
 
     if (windowToCloseHandle != NULL) {
